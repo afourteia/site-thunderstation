@@ -1,0 +1,128 @@
+---
+import { Image } from 'astro:assets';
+import priceMenu from '../assets/price-menu.png';
+
+const fullResolutionSrc = '/downloads/price-menu.png';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Thunder Station price menu with progressive image loading."
+    />
+    <title>Thunder Station Price Menu</title>
+  </head>
+  <body>
+    <main class="menu-page">
+      <figure class="menu-sheet">
+        <Image
+          id="price-menu-image"
+          src={priceMenu}
+          alt="Thunder Station price menu"
+          widths={[360, 540, 720, 900, 1055]}
+          sizes="(max-width: 760px) calc(100vw - 24px), 760px"
+          format="webp"
+          quality={82}
+          priority
+          class="menu-sheet__image"
+          data-full-resolution-src={fullResolutionSrc}
+        />
+      </figure>
+    </main>
+
+    <script>
+      const menuImage = document.getElementById('price-menu-image');
+
+      if (menuImage instanceof HTMLImageElement) {
+        const fullResolutionSrc = menuImage.dataset.fullResolutionSrc;
+
+        const swapToFullResolution = () => {
+          if (!fullResolutionSrc) return;
+          menuImage.src = fullResolutionSrc;
+          menuImage.removeAttribute('srcset');
+          menuImage.sizes = '';
+          menuImage.classList.add('menu-sheet__image--enhanced');
+        };
+
+        if (fullResolutionSrc) {
+          const enhancedImage = document.createElement('img');
+          enhancedImage.src = fullResolutionSrc;
+          enhancedImage.alt = menuImage.alt;
+
+          enhancedImage.decode().then(swapToFullResolution).catch(() => {
+            enhancedImage.addEventListener('load', swapToFullResolution, {
+              once: true,
+            });
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  :global(*) {
+    box-sizing: border-box;
+  }
+
+  :global(html),
+  :global(body) {
+    margin: 0;
+    min-height: 100%;
+    overflow-x: hidden;
+    background: #101010;
+    color: #f7f1e8;
+    font-family:
+      Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", sans-serif;
+  }
+
+  .menu-page {
+    display: grid;
+    justify-items: center;
+    min-height: 100svh;
+    padding: clamp(8px, 2vw, 24px);
+    background: #101010;
+  }
+
+  .menu-sheet {
+    width: min(100%, 760px);
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .menu-sheet__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    background: #f7f1e8;
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+  }
+
+  .menu-sheet__image--enhanced {
+    image-rendering: auto;
+  }
+
+  @media (max-width: 760px) {
+    .menu-page {
+      align-content: start;
+      padding: 8px;
+    }
+
+    .menu-sheet__image {
+      border-radius: 4px;
+      box-shadow: 0 10px 36px rgba(0, 0, 0, 0.32);
+    }
+  }
+
+  @media (max-width: 380px) {
+    .menu-page {
+      padding: 6px;
+    }
+  }
+</style>
